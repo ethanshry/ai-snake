@@ -1,12 +1,8 @@
-use super::{window_height, window_width};
+use super::{WINDOW_HEIGHT, WINDOW_WIDTH};
 use rand::{rngs::ThreadRng, thread_rng, Rng};
 use sfml::{
-    graphics::{
-        CircleShape, Color, Font, RectangleShape, RenderTarget, RenderWindow, Shape, Text,
-        Transformable,
-    },
-    system::{Clock, Time, Vector2f},
-    window::{ContextSettings, Event, Key, Style},
+    graphics::{Color, RectangleShape, RenderTarget, RenderWindow, Shape, Transformable},
+    system::Vector2f,
 };
 use std::collections::VecDeque;
 
@@ -191,8 +187,8 @@ impl DrawableGame {
             wall_objects: vec![],
             snake_objects: VecDeque::new(),
             reward_object: RectangleShape::new(),
-            block_size: Vector2f::new(window_width as f32 / 16., window_height as f32 / 16.),
-            block_scale_factor: window_height as f32 / width as f32,
+            block_size: Vector2f::new(WINDOW_WIDTH as f32 / 16., WINDOW_HEIGHT as f32 / 16.),
+            block_scale_factor: WINDOW_HEIGHT as f32 / width as f32,
         };
         dg.setup();
         dg
