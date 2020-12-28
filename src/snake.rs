@@ -20,6 +20,8 @@ pub struct Game {
     direction: Direction,
     score: u32,
     rng: ThreadRng,
+    ttl: u32,
+    pub observations: Vec<i16>,
 }
 
 impl Game {
@@ -33,6 +35,8 @@ impl Game {
             direction: Direction::Right,
             score: 0,
             rng: thread_rng(),
+            ttl: 100,
+            observations: Vec::with_capacity(32),
         };
         game.position_new_reward();
         game
@@ -67,12 +71,14 @@ impl Game {
         if new_head_pos == self.reward {
             // snake ate an apple
             self.score += 1;
+            self.ttl += 100;
             self.snake.positions.push_front(new_head_pos);
             self.position_new_reward();
         } else {
             self.snake.positions.pop_back().unwrap();
             self.snake.positions.push_front(new_head_pos);
         }
+        self.ttl -= 1;
     }
 
     fn position_new_reward(&mut self) {
@@ -90,7 +96,17 @@ impl Game {
     }
 
     pub fn is_over(&self) -> bool {
-        self.snake.has_collision(&self.board)
+        self.ttl == 0 || self.snake.has_collision(&self.board)
+    }
+
+    pub fn observe(&mut self) {
+        let head_position = self.snake.positions[0];
+        // distances to apple
+        // dist right
+        self.observations[0] = head_position.x - self.reward.x;
+        self.observations[1] = head_position.x - self.reward.x;
+        self.observations[2] = head_position.x - self.reward.x;
+        self.observations[3] = head_position.x - self.reward.x;
     }
 }
 
@@ -253,19 +269,6 @@ impl DrawableGame {
                 position.y as f32 * self.block_scale_factor + self.block_size.y / 2.,
             ));
         }
-        //let mut new_head = self.snake_objects.pop_back().unwrap();
-        //println!("Pos: {:?}", self.game.snake.positions);
-        /*println!(
-            "Pos: {:?}",
-            self.snake_objects.iter().map(|i| i.position()).collect()
-        );*/
-        /*self.snake_objects[0].set_position((
-            self.game.snake.positions[0].x as f32 * self.block_scale_factor
-                + self.block_size.x / 2.,
-            self.game.snake.positions[0].y as f32 * self.block_scale_factor
-                + self.block_size.y / 2.,
-        ));*/
-        //self.snake_objects.push_front(new_head);
         for wall in self.wall_objects.iter() {
             window.draw(wall);
         }

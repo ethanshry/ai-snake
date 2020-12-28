@@ -8,6 +8,14 @@ mod snake;
 
 use snake::{Direction, DrawableGame};
 
+enum GameMode {
+    Training,
+    Simulating,
+    Playing,
+}
+
+const MODE: GameMode = GameMode::Playing;
+
 pub const WINDOW_WIDTH: i16 = 480;
 pub const WINDOW_HEIGHT: i16 = 480;
 
@@ -26,55 +34,63 @@ fn main() {
 
     let mut game = DrawableGame::new(16, 16);
 
-    // Create the window of the application
-    let context_settings = ContextSettings::default();
-    let mut window = RenderWindow::new(
-        (WINDOW_WIDTH as u32, WINDOW_HEIGHT as u32),
-        "SFML Pong",
-        Style::CLOSE,
-        &context_settings,
-    );
-    window.set_vertical_sync_enabled(true);
+    match MODE {
+        GameMode::Training => {}
+        GameMode::Simulating => {
+            return;
+        }
+        GameMode::Playing => {
+            // Create the window of the application
+            let context_settings = ContextSettings::default();
+            let mut window = RenderWindow::new(
+                (WINDOW_WIDTH as u32, WINDOW_HEIGHT as u32),
+                "SFML Pong",
+                Style::CLOSE,
+                &context_settings,
+            );
+            window.set_vertical_sync_enabled(true);
 
-    let mut timer = Clock::start();
-    let time = Time::seconds(0.15);
+            let mut timer = Clock::start();
+            let time = Time::seconds(0.15);
 
-    loop {
-        while let Some(event) = window.poll_event() {
-            match event {
-                Event::Closed
-                | Event::KeyPressed {
-                    code: Key::Escape, ..
-                } => return,
-                _ => {}
+            loop {
+                while let Some(event) = window.poll_event() {
+                    match event {
+                        Event::Closed
+                        | Event::KeyPressed {
+                            code: Key::Escape, ..
+                        } => return,
+                        _ => {}
+                    }
+                }
+
+                if Key::Up.is_pressed() {
+                    game.update_direction(Direction::Up);
+                }
+                if Key::Down.is_pressed() {
+                    game.update_direction(Direction::Down);
+                }
+                if Key::Left.is_pressed() {
+                    game.update_direction(Direction::Left);
+                }
+                if Key::Right.is_pressed() {
+                    game.update_direction(Direction::Right);
+                }
+
+                if timer.elapsed_time().as_microseconds() > time.as_microseconds() {
+                    timer.restart();
+                    game.move_snake();
+                    if game.is_over() {
+                        game = DrawableGame::new(16, 16);
+                    }
+                }
+
+                // Clear the window
+                window.clear(Color::rgb(50, 50, 50));
+                game.draw(&mut window);
+                // Display things on screen
+                window.display();
             }
         }
-
-        if Key::Up.is_pressed() {
-            game.update_direction(Direction::Up);
-        }
-        if Key::Down.is_pressed() {
-            game.update_direction(Direction::Down);
-        }
-        if Key::Left.is_pressed() {
-            game.update_direction(Direction::Left);
-        }
-        if Key::Right.is_pressed() {
-            game.update_direction(Direction::Right);
-        }
-
-        if timer.elapsed_time().as_microseconds() > time.as_microseconds() {
-            timer.restart();
-            game.move_snake();
-            if game.is_over() {
-                game = DrawableGame::new(16, 16);
-            }
-        }
-
-        // Clear the window
-        window.clear(Color::rgb(50, 50, 50));
-        game.draw(&mut window);
-        // Display things on screen
-        window.display();
     }
 }
